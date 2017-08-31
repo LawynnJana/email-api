@@ -7,12 +7,17 @@ module.exports = app  => {
     scope: ['profile', 'email'] // asks google for user's profile and email
   })); // gets code
 
-  app.get('/auth/google/callback', 
-    passport.authenticate('google') // code is sent along
+  app.get(
+    '/auth/google/callback', 
+    passport.authenticate('google'),
+    (req, res) => {
+      res.redirect('/surveys');
+    }
   );
+  
   app.get('/api/logout', (req, res) => {
     req.logout();
-    res.send(req.user);
+    res.redirect('/');
   })
 
   app.get('/api/current_user', (req, res) => {
