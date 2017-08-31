@@ -9,7 +9,7 @@ class Header extends Component {
     this.renderContent = this.renderContent.bind(this);
   }
   renderContent() {
-    const { auth, handleLogout } = this.props;
+    const { auth } = this.props;
     switch(auth) {
       case null:
         return;
@@ -20,11 +20,11 @@ class Header extends Component {
     }
   }
   render(){
-    
+    const { auth } = this.props;
     return (
       <nav>
         <div className="nav-wrapper">
-          <a href="#" className="brand-logo">Emaily</a>
+          <Link to={auth ? `/surveys` : '/'} className="left brand-logo">Emaily</Link>
           <ul id="nav-mobile" className="right">       
             {this.renderContent()}
           </ul>
@@ -34,7 +34,7 @@ class Header extends Component {
   }
 }
 const mapStateToProps = (state) => {
-  return { auth: state.auth}
+  return { auth: state.auth }
 }
 
-export default connect(mapStateToProps, actions)(Header);
+export default connect(mapStateToProps)(Header);
