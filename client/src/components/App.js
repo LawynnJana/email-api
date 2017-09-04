@@ -25,7 +25,7 @@ class App extends Component {
             <Switch>
               <Route exact path='/' render={() => <Landing/>}/>
               <Route path='/surveys/new' render={() => <SurveyNew/>}/>
-              <Route path='/surveys' render={() => <Landing/>}/>
+              <Route path='/surveys' render={() => <Dashboard/>}/>
             </Switch>
           </div>
         </BrowserRouter>
