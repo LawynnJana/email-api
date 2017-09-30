@@ -50,7 +50,6 @@ class Mailer extends helper.Mail {
     });
     console.log('Sending email...');
     const response = await this.sgApi.API(request);
-    console.log(response);
     return response;
   }
 }
