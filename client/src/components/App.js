@@ -17,18 +17,17 @@ class App extends Component {
 
   render(){
     return (
-      <div className="container">
-        <BrowserRouter>
-          <div>
-            <Header/>
-            <Switch>
-              <Route exact path='/' render={() => <Landing/>}/>
-              <Route path='/surveys/new' render={() => <SurveyNew/>}/>
-              <Route path='/surveys' render={() => <Dashboard/>}/>
-            </Switch>
-          </div>
-        </BrowserRouter>
-      </div>
+      
+      <BrowserRouter>
+        <div className="container">
+          <Header/>
+          <Switch>
+            <Route exact path='/' render={() => <Landing/>}/>
+            <Route path='/surveys/new' render={() => <SurveyNew/>}/>
+            <Route path='/surveys' render={() => <Dashboard/>}/>
+          </Switch>
+        </div>
+      </BrowserRouter>
     )
   }
 }
