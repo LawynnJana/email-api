@@ -7,8 +7,11 @@ const surveyTemplate = require('../services/emailTemplates/surveyTemplate');
 const Survey = mongoose.model('surveys');
 
 module.exports = app => {
-
-  app.post('/api/surveys', requireLogin, requireCredits, (req, res) => {
+  app.get('/api/surveys/thanks', (req,res) => {
+    res.send('Thanks for voting!');
+  })
+  
+  app.post('/api/surveys', requireLogin, requireCredits, async (req, res) => {
     const { title, subject, body, recipients } = req.body;
     
 
@@ -17,14 +20,22 @@ module.exports = app => {
       title,
       subject,
       body,
-      recipients: recipients.split(',').map(email => ({ email: email.trim() })), // object of recipient emails
+      recipients: recipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
       _user: req.user.id, // Id of the owner of survey
       dateSent: Date.now()
     })
 
     // Send e-mail after survey creation
     const mailer = new Mailer(survey, surveyTemplate(survey));
-    mailer.send();
+    try {
+      await mailer.send();
+      await survey.save();
+      req.user.credits -= 1;
+      const user = await req.user.save();
+      res.send(user);
+    } catch (err) {
+      res.status(422).send(err); // 422 => user sent wrong data
+    }
   });
 
 };
