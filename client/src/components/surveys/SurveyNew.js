@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SurveyForm from './SurveyForm';
 import SurveyFormReview from './SurveyFormReview';
+import { reduxForm } from 'redux-form';
 
 class SurveyNew extends Component {
 
@@ -21,4 +22,6 @@ class SurveyNew extends Component {
   }
 }
 
-export default SurveyNew;
+export default reduxForm({
+  form:'surveyForm' // destroys form values on cancel. Do not want values to persis after cancel
+})(SurveyNew);
