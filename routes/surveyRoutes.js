@@ -17,15 +17,31 @@ module.exports = app => {
   app.post('/api/surveys/webhooks', (req, res) => {
     console.log('test => ', req.body)
     const p = new Path('/api/surveys/:surveyId/:choice');
-    const events = _.map(req.body, ({ email, url }) => {
-      const match = p.test(new URL(url).pathname); //p.test return null if surveyId and choice not found
-      if(match){
-        return {email: email, surveyId: match.surveyId, choice: match.choice} //will return undefined for non matches
-      }
-    })
-    const compactEvents = _.compact(events); // removed all undefined objects
-    const uniqueEvents = _.uniqBy(compactEvents, 'email', 'surveyId')// remove duplicates
-    console.log('Gang' ,uniqueEvents);
+    const events = _.chain(req.body)
+      .map(({ email, url }) => {
+        const match = p.test(new URL(url).pathname); //p.test return null if surveyId and choice not found
+        if(match){
+          return {email: email, surveyId: match.surveyId, choice: match.choice} //will return undefined for non matches
+        }
+      })
+      .compact() // removed all undefined objects
+      .uniqBy('email', 'surveyId')// remove duplicates
+      .each(({ surveyId, email, choice }) => {
+        Survey.updateOne(
+          { // this is async, but we don't need to respond to anything (SendGrid handles this)
+            _id: surveyId,
+            recipients: {
+              $elemMatch: { email: email, responded: false }
+            }
+          }, {
+            $inc:{ [choice]: 1 },
+            $set: { 'recipients.$.responded': true }
+          }
+        ).exec();
+      })
+      .value();
+
+    console.log(events);
     res.send({});
   });
 
