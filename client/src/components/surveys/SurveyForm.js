@@ -5,13 +5,17 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 
 import SurveyField from './SurveyField';
+import SurveyFileField from './SurveyFileField';
+
 import validateEmails from '../../utils/validateEmails';
 import FIELDS from './formFields';
 
 class SurveyForm extends Component {
+  
   renderFields() {
     return _.map(FIELDS, ({label, name}) => {
-      return <Field type="text" key={name} name={name} label={label} component={SurveyField} />
+      //if(name === 'recipients') return <Field type="text" key={name} name={name} label={label} component={SurveyFileField} />;
+      return <Field type="text" key={name} name={name} label={label} component={SurveyField} />; 
     }) 
   }
 
@@ -21,6 +25,7 @@ class SurveyForm extends Component {
         <h1>Survey Form</h1>
         <form onSubmit={this.props.handleSubmit(this.props.onSurveySubmit)}>
           {this.renderFields()}
+          <Field type="file" key={'file'} name={'recipientFile'} label={'Import File'} component={SurveyFileField} />; 
           <Link to="/surveys" className="red btn-flat left white-text">
             Cancel
           </Link>
@@ -36,7 +41,7 @@ class SurveyForm extends Component {
 
 const validate = (values) => {
   const errors = {};
-
+  console.log('Validate', values);
   errors.recipients = validateEmails(values.recipients || '');
   
   _.each(FIELDS, ({name}) => {

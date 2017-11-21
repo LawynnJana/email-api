@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
 const bodyParser = require('body-parser');
+
 const keys = require('./config/keys');
+
 require('./models/User');
 require('./models/Survey');
 require('./services/passport');
@@ -12,6 +14,7 @@ mongoose.connect(keys.mongoURI);
 
 const app = express();
 app.use(bodyParser.json()); // any post data is put into req.body vis bodyParser
+
 app.use(
   cookieSession({
     maxAge: 30 * 24 * 60 * 60 * 1000,
