@@ -56,5 +56,11 @@ const validate = (values) => {
 export default reduxForm({
   form: 'surveyForm',
   validate,
-  destroyOnUnmount: false //don't dump values on redirect
+  destroyOnUnmount: false, //don't dump values on redirect
+  initialValues: {
+    title: 'Temp',
+    subject: 'Temp',
+    body: 'Temp',
+    recipients: 'Temp@gmail.com'  
+  }
 })(SurveyForm);

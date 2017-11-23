@@ -1,15 +1,28 @@
-const fcsv = require('fast-csv');
-
+const csv = require('fast-csv');
+const fs = require('fs');
 module.exports = (req, res, next) => {
-  if(req.body.recipientFile){
-    // if it's not of type CSV return error
-    const file = req.body.recipientFile;
-    console.log(req);
-    console.log('The CSV File:', file['0']);
-    //const stream = fs.createReadStream(file);
-    //if(fcsv.parse(req.body.recipientFile)) {
-      //return res.status(400).send({error: 'The file you imported in invalid.'});
-   //}
+
+
+  // should validate the key for e-mails
+  if(req.files){
+    console.log('Validating CSV...', req.files);  
+    const stream = fs.createReadStream(req.files[0].path); 
+    csv
+      .fromStream(stream, {headers : true})
+      .validate(data => {
+        console.log('ONVALID',data['E-mail 1 - Value']);
+         return data['E-mail 1 - Value'] !== '' || data['E-mail 1 - Value'] !== null;
+      })
+      .on("data-invalid", function(data){
+         //do something with invalid row
+         console.log('INVALID DATA ', data);
+      })
+      .on("data", function(data){
+         console.log('data',data);
+      })
+      .on("end", function(){
+         console.log("done");
+      });
   }
 
   next();

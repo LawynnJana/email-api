@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cookieSession = require('cookie-session');
 const passport = require('passport');
 const bodyParser = require('body-parser');
-
+const multer = require('multer');
 const keys = require('./config/keys');
 
 require('./models/User');
@@ -13,7 +13,10 @@ require('./services/passport');
 mongoose.connect(keys.mongoURI);
 
 const app = express();
-app.use(bodyParser.json()); // any post data is put into req.body vis bodyParser
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded());
+//app.use(multer({dest:"./uploads/"}).any());
+//app.use(bodyParser.json()); // any post data is put into req.body vis bodyParser
 
 app.use(
   cookieSession({

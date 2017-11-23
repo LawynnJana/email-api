@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { FETCH_USER, FETCH_SURVEYS } from './types';
+import FormData from 'form-data';
 
 export const fetchUser = () => async dispatch => {
   const res = await axios.get('/api/current_user');
@@ -12,10 +13,17 @@ export const handleToken = token => async dispatch => {
 }
 
 export const submitSurvey = (values, history) => {
+  let data = new FormData();
+  if(values.recipientFile) data.append('file', values.recipientFile[0]);
+  for(let key in values) {
+    console.log(key, ':', values[key]);
+    if(key !== 'recipientFile')
+      data.append(key ,values[key]);
+  }
+
   return async dispatch => {
-    if(values.recipientFile)
-      console.log(values.recipientFile);
-    const res = await axios.post('/api/surveys', values);
+
+    const res = await axios.post('/api/surveys', data);
     history.push('/surveys');
     dispatch({ type: FETCH_USER, payload: res.data})
   }
