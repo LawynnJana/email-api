@@ -55,12 +55,29 @@ module.exports = app => {
   app.post('/api/surveys', requireLogin, requireCredits, upload.any(), validateCsv, async (req, res) => {
     
     const { title, subject, body, recipients } = req.body;
+    
     //console.log(req.files);
     //let recipientCSV;
     //if(req.body.recipientFile) recipientCSV = req.body.recipientFile;
     // parse e-mail clients;
-    const user = await req.user.save();
-    res.send(user);
+
+    // const stream = fs.createReadStream(req.files[0].path); 
+    // let invalid = true;
+    // csv
+    //   .fromStream(stream, {headers : true})
+    //   .transform(data => {
+    //     if(data['E-mail 1 - Value'] !== '' || data['E-mail 1 - Value'] !== null){
+    //       return {'E-mail 1 - Value': data['E-mail 1 - Value'] };
+    //     }
+    //   })
+    //   .on("data", function(data){
+    //     console.log('data',data);
+    //   })
+    //   .on("end", function(){
+        
+    //   });
+      const user = await req.user.save();
+      res.send(user);
     //Create new survey
   //   const survey = new Survey({
   //     title,
