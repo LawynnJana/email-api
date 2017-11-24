@@ -4,5 +4,5 @@ export default [
   { label: 'Email Body', name: 'body' },
   { label: 'Recipient List', name: 'recipients' }
 ];
-
+export const CONTACTS_CSV = 'recipientFile';
 

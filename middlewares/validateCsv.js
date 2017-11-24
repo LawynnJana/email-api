@@ -19,10 +19,17 @@ module.exports = (req, res, next) => {
       .on("data-invalid", function(data){
          //do something with invalid row
       })
+      .on('data', data => {
+        //console.log(data);
+      })
       .on("end", function(){
+        console.log("done");
+        console.log(invalid);
          if(!invalid)
           res.status(404).send({error: 'Please provide a valid CSV'});
       });
+      console.log("LE FIN");
+     
   }
 
   next();
