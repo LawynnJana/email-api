@@ -4,10 +4,12 @@ const { URL } = require('url');
 const mongoose = require('mongoose');
 const requireLogin = require('../middlewares/requireLogin');
 const requireCredits = require('../middlewares/requireCredits');
-const validateCsv = require('../middlewares/validateCsv');
 const Mailer = require('../services/Mailer');
 const surveyTemplate = require('../services/emailTemplates/surveyTemplate');
 const multer = require('multer');
+const fs = require('fs');
+const csv = require('fast-csv');
+
 const upload = multer({dest: 'uploads/'});
 
 const Survey = mongoose.model('surveys');
@@ -52,53 +54,63 @@ module.exports = app => {
     res.send({});
   });
 
-  app.post('/api/surveys', requireLogin, requireCredits, upload.any(), validateCsv, async (req, res) => {
+  app.post('/api/surveys', requireLogin, requireCredits, upload.any(), async (req, res) => {
     
     const { title, subject, body, recipients } = req.body;
     
-    //console.log(req.files);
-    //let recipientCSV;
-    //if(req.body.recipientFile) recipientCSV = req.body.recipientFile;
-    // parse e-mail clients;
+    console.log(req.files);
+    let recipientCSV;
+    if(req.body.recipientFile) recipientCSV = req.body.recipientFile;
+    //parse e-mail clients;
 
-    // const stream = fs.createReadStream(req.files[0].path); 
-    // let invalid = true;
-    // csv
-    //   .fromStream(stream, {headers : true})
-    //   .transform(data => {
-    //     if(data['E-mail 1 - Value'] !== '' || data['E-mail 1 - Value'] !== null){
-    //       return {'E-mail 1 - Value': data['E-mail 1 - Value'] };
-    //     }
-    //   })
-    //   .on("data", function(data){
-    //     console.log('data',data);
-    //   })
-    //   .on("end", function(){
+    const stream = fs.createReadStream(req.files[0].path); 
+    let invalid = true;
+    let emails = '';
+    try {
+      csv
+      .fromStream(stream, {headers : true})
+      .transform(data => {
+        if(data['E-mail 1 - Value'] !== '' || data['E-mail 1 - Value'] !== null){
+          return {'E-mail 1 - Value': data['E-mail 1 - Value'] };
+        }
+      })
+      .on("data", function(data){
+        if(emails === '') emails = data['E-mail 1 - Value']; 
+        else emails = emails + ', ' + data['E-mail 1 - Value'];
+      })
+      .on("end", async function(){
+        const allRecipients = recipients + ', ' + emails;
         
-    //   });
-      const user = await req.user.save();
-      res.send(user);
-    //Create new survey
-  //   const survey = new Survey({
-  //     title,
-  //     subject,
-  //     body,
-  //     recipients: recipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
-  //     _user: req.user.id, // Id of the owner of survey
-  //     dateSent: Date.now()
-  //   })
+        //Create new survey
+        const survey = new Survey({
+          title,
+          subject,
+          body,
+          recipients: allRecipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
+          _user: req.user.id, // Id of the owner of survey
+          dateSent: Date.now()
+        })
 
-  //   // Send e-mail after survey creation
-  //   const mailer = new Mailer(survey, surveyTemplate(survey));
-  //   try {
-  //     await mailer.send();
-  //     await survey.save();
-  //     req.user.credits -= 1;
-  //     const user = await req.user.save();
-  //     res.send(user);
-  //   } catch (err) {
-  //     res.status(422).send(err); // 422 => user sent wrong data
-  //   }
+        // Send e-mail after survey creation
+        const mailer = new Mailer(survey, surveyTemplate(survey));
+        try {
+          await mailer.send();
+          await survey.save();
+          req.user.credits -= 1;
+          const user = await req.user.save();
+          res.send(user);
+        } catch (err) {
+          res.status(422).send(err); // 422 => user sent wrong data
+        }
+        const user = await req.user.save();
+        res.send(user);
+      });
+    
+    } catch(err) {
+      return res.status(422).send(err); // Make sure client side doesn't redirect 
+    }
+    
+    
   });
 
 };
