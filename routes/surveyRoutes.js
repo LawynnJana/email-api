@@ -56,37 +56,52 @@ module.exports = app => {
   });
 
 
-  const sendSurvey = async (req, res, allRecipients) => {
-    const { title, subject, body } = req;
-    const survey = new Survey({
+  // const sendSurvey = async (req, res, allRecipients) => {
+  //   const { title, subject, body } = req;
+  //   const survey = new Survey({
+  //     title,
+  //     subject,
+  //     body,
+  //     recipients: allRecipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
+  //     _user: req.user.id, // Id of the owner of survey
+  //     dateSent: Date.now()
+  //   })
+
+  //       // Send e-mail after survey creation
+  //   const mailer = new Mailer(survey, surveyTemplate(survey));
+  //   try {
+  //     await mailer.send();
+  //     await survey.save();
+  //     req.user.credits -= 1;
+  //     const user = await req.user.save();
+  //     res.send(user);
+  //   } catch (err) {
+  //     res.status(422).send(err); // 422 => user sent wrong data
+  //   }
+  // }
+
+  const createSurvey = (title, subject, body, recipients, req) => {
+    return new Survey({
       title,
       subject,
       body,
-      recipients: allRecipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
+      recipients: recipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
       _user: req.user.id, // Id of the owner of survey
       dateSent: Date.now()
     })
 
-        // Send e-mail after survey creation
-    const mailer = new Mailer(survey, surveyTemplate(survey));
-    try {
-      await mailer.send();
-      await survey.save();
-      req.user.credits -= 1;
-      const user = await req.user.save();
-      res.send(user);
-    } catch (err) {
-      res.status(422).send(err); // 422 => user sent wrong data
-    }
   }
+
   app.post('/api/surveys', requireLogin, requireCredits, upload.any(), async (req, res) => {
     
     const { title, subject, body, recipients } = req.body;
     
     let invalid = true;
     let emails = '';
+
     if(req.files && req.files.length !== 0){
-      console.log('FILES:', req.files);
+      console.log('Found uploaded file');
+      // XLSX Format
       // if(req.files[0].type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
       //    console.log('XLSX Sheet');
 
@@ -114,38 +129,46 @@ module.exports = app => {
           else emails = emails + ', ' + data['E-mail 1 - Value'];
         })
         .on("end", async function(){
+          console.log("-----FILE Input-----");
           const allRecipients = recipients + ', ' + emails;
-          sendSurvey(req, res, allRecipients);
-          // //Create new survey
-          // const survey = new Survey({
-          //   title,
-          //   subject,
-          //   body,
-          //   recipients: allRecipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
-          //   _user: req.user.id, // Id of the owner of survey
-          //   dateSent: Date.now()
-          // })
+          
+          //Create new survey
+          const survey = createSurvey(title, subject, body, recipients, req);
 
-          // // Send e-mail after survey creation
-          // const mailer = new Mailer(survey, surveyTemplate(survey));
-          // try {
-          //   await mailer.send();
-          //   await survey.save();
-          //   req.user.credits -= 1;
-          //   const user = await req.user.save();
-          //   res.send(user);
-          // } catch (err) {
-          //   res.status(422).send(err); // 422 => user sent wrong data
-          // }
-          // const user = await req.user.save();
-          // res.send(user);
+          // Send e-mail after survey creation
+          const mailer = new Mailer(survey, surveyTemplate(survey));
+          try {
+            await mailer.send();
+            await survey.save();
+            req.user.credits -= 1;
+            const user = await req.user.save();
+            res.send(user);
+          } catch (err) {
+            res.status(422).send(err); // 422 => user sent wrong data
+          }
+          const user = await req.user.save();
+          res.send(user);
         });
       
       } catch(err) { // Invalid data in CSV
+
         return res.status(422).send(err); // Make sure client side doesn't redirect 
       }
-    } else sendSurvey(req, res, recipients)
-    
+    } else {
+      console.log("No files");
+      const survey = createSurvey(title, subject, body, recipients, req);
+      // Send e-mail after survey creation
+      const mailer = new Mailer(survey, surveyTemplate(survey));
+      try {
+        await mailer.send();
+        await survey.save();
+        req.user.credits -= 1;
+        const user = await req.user.save();
+        res.send(user);
+      } catch (err) {
+        res.status(422).send(err); // 422 => user sent wrong data
+      }
+    }
   });
 
 };
