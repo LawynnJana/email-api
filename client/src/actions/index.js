@@ -22,7 +22,7 @@ export const submitSurvey = (values, history) => {
   }
 
   return async dispatch => {
-
+    
     const res = await axios.post('/api/surveys', data);
     history.push('/surveys');
     dispatch({ type: FETCH_USER, payload: res.data})

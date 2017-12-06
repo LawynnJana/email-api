@@ -13,8 +13,8 @@ require('./services/passport');
 mongoose.connect(keys.mongoURI);
 
 const app = express();
-//app.use(bodyParser.json());
-//app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 //app.use(multer({dest:"./uploads/"}).any());
 //app.use(bodyParser.json()); // any post data is put into req.body vis bodyParser
 
