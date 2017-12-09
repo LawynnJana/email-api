@@ -64,7 +64,6 @@ module.exports = app => {
       _user: req.user.id, // Id of the owner of survey
       dateSent: Date.now()
     })
-
   }
 
   app.post('/api/surveys', requireLogin, requireCredits, upload.any(), async (req, res) => {
