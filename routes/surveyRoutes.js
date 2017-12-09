@@ -55,31 +55,6 @@ module.exports = app => {
     res.send({});
   });
 
-
-  // const sendSurvey = async (req, res, allRecipients) => {
-  //   const { title, subject, body } = req;
-  //   const survey = new Survey({
-  //     title,
-  //     subject,
-  //     body,
-  //     recipients: allRecipients.split(',').map(email => ({ email: email.trim() })), // map string of emails to objects
-  //     _user: req.user.id, // Id of the owner of survey
-  //     dateSent: Date.now()
-  //   })
-
-  //       // Send e-mail after survey creation
-  //   const mailer = new Mailer(survey, surveyTemplate(survey));
-  //   try {
-  //     await mailer.send();
-  //     await survey.save();
-  //     req.user.credits -= 1;
-  //     const user = await req.user.save();
-  //     res.send(user);
-  //   } catch (err) {
-  //     res.status(422).send(err); // 422 => user sent wrong data
-  //   }
-  // }
-
   const createSurvey = (title, subject, body, recipients, req) => {
     return new Survey({
       title,
@@ -101,39 +76,37 @@ module.exports = app => {
 
     if(req.files && req.files.length !== 0){
       console.log('Found uploaded file');
-      // XLSX Format
-      // if(req.files[0].type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'){
-      //    console.log('XLSX Sheet');
-
-      //   const workbook = xlsx.readFile(req.files[0].path);
-
-      //   const sheet_name_list = workbook.SheetNames;
-      //   //console.log(XLSX.utils.sheet_to_csv(workbook.Sheets[sheet_name_list[0]]));
-
-      //   const output_file_name = "./uploads/temp.csv";
-      //   var stream = XLSX.stream.to_csv(workbook.Sheets[sheet_name_list[0]]);
-      //   stream.pipe(fs.createWriteStream(output_file_name));
-      // }
+      const GMAIL = 'E-mail 1 - Value'; // Google Mail 
+      const OUTLOOK = 'E-mail Address'; // Outlook
       
       try {
         const stream = fs.createReadStream(req.files[0].path); 
         csv
         .fromStream(stream, {headers : true})
         .transform(data => {
-          if(data['E-mail 1 - Value'] !== '' || data['E-mail 1 - Value'] !== null){
-            return {'E-mail 1 - Value': data['E-mail 1 - Value'] };
+          console.log('Data', data);
+
+          if (data[GMAIL] !== '' && data[GMAIL] !== null && data[GMAIL] !== undefined) {
+            return { 'E-mail': data[GMAIL] };
           }
+          else if (data[OUTLOOK] !== '' && data[OUTLOOK] !== null && data[OUTLOOK] !== undefined) {
+            return { 'E-mail': data[OUTLOOK] };
+          } 
+
+          else {
+            console.log('NO E-MAILS FOUND IN SPREADSHEET');
+          }
+
         })
         .on("data", function(data){
-          if(emails === '') emails = data['E-mail 1 - Value']; 
-          else emails = emails + ', ' + data['E-mail 1 - Value'];
+          if(emails === '') emails = data['E-mail']; 
+          else emails = emails + ', ' + data['E-mail'];
         })
         .on("end", async function(){
           console.log("-----FILE Input-----");
           const allRecipients = recipients + ', ' + emails;
-          
           //Create new survey
-          const survey = createSurvey(title, subject, body, recipients, req);
+          const survey = createSurvey(title, subject, body, allRecipients, req);
 
           // Send e-mail after survey creation
           const mailer = new Mailer(survey, surveyTemplate(survey));
@@ -146,12 +119,9 @@ module.exports = app => {
           } catch (err) {
             res.status(422).send(err); // 422 => user sent wrong data
           }
-          const user = await req.user.save();
-          res.send(user);
         });
       
       } catch(err) { // Invalid data in CSV
-
         return res.status(422).send(err); // Make sure client side doesn't redirect 
       }
     } else {
