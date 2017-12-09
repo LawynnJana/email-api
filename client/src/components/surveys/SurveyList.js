@@ -1,21 +1,22 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { fetchSurveys } from '../../actions';
+import { fetchSurveys, deleteSurvey } from '../../actions';
 
 class SurveyList extends Component {
   
   constructor(props) {
     super(props)
-    //this.renderSurveys = this.renderSurveys.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
   }
 
   componentDidMount() {
     this.props.fetchSurveys();
   }
 
-  handleDelete = () => {
+  handleDelete = (survey_id) => {
     alert("Are you sure you want to delete this survey?");
-    
+    console.log('Deleting', survey_id);
+    this.props.deleteSurvey(survey_id)
   }
 
   renderSurveys() {
@@ -54,4 +55,4 @@ class SurveyList extends Component {
 const mapStateToProps = ({ surveys }) => {
   return { surveys };
 }
-export default connect(mapStateToProps, {fetchSurveys})(SurveyList);
+export default connect(mapStateToProps, {fetchSurveys, deleteSurvey})(SurveyList);
