@@ -29,6 +29,8 @@ class SurveyList extends Component {
           <div className="card-action">
             <a>Yes: {survey.yes} </a>
             <a>No: {survey.no} </a>
+            <button className="btn-floating right btn-small waves-effect waves-light red"><i className="material-icons">delete</i></button>
+
           </div>
         </div>
       );
