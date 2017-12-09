@@ -13,6 +13,11 @@ class SurveyList extends Component {
     this.props.fetchSurveys();
   }
 
+  handleDelete = () => {
+    alert("Are you sure you want to delete this survey?");
+    
+  }
+
   renderSurveys() {
     return this.props.surveys.reverse().map(survey => {
       return (
@@ -29,7 +34,7 @@ class SurveyList extends Component {
           <div className="card-action">
             <a>Yes: {survey.yes} </a>
             <a>No: {survey.no} </a>
-            <button className="btn-floating right btn-small waves-effect waves-light red"><i className="material-icons">delete</i></button>
+            <button onClick={() => this.handleDelete(survey._id)} className="btn-floating right btn-small waves-effect waves-light red"><i className="material-icons">delete</i></button>
 
           </div>
         </div>
