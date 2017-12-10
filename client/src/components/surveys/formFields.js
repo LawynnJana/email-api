@@ -1,5 +1,5 @@
 export default [
-  { label: 'From', name: 'from'},
+  { label: 'From', name: 'fromEmail'},
   { label: 'Survey Title', name: 'title' },
   { label: 'Subject Line', name: 'subject' },
   { label: 'Email Body', name: 'body' },

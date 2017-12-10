@@ -55,8 +55,11 @@ module.exports = app => {
     res.send({});
   });
 
-  const createSurvey = (title, subject, body, recipients, req) => {
+  const createSurvey = (fromEmail, title, subject, body, recipients, req) => {
+    if(!fromEmail || fromEmail === undefined || fromEmail === null) 
+      fromEmail = "no-reply@email.com"
     return new Survey({
+      fromEmail,
       title,
       subject,
       body,
@@ -68,7 +71,8 @@ module.exports = app => {
 
   app.post('/api/surveys', requireLogin, requireCredits, upload.any(), async (req, res) => {
     
-    const { title, subject, body, recipients } = req.body;
+    const { fromEmail, title, subject, body, recipients } = req.body;
+    
     
     let invalid = true;
     let emails = '';
@@ -83,19 +87,15 @@ module.exports = app => {
         csv
         .fromStream(stream, {headers : true})
         .transform(data => {
-          console.log('Data', data);
-
           if (data[GMAIL] !== '' && data[GMAIL] !== null && data[GMAIL] !== undefined) {
             return { 'E-mail': data[GMAIL] };
           }
           else if (data[OUTLOOK] !== '' && data[OUTLOOK] !== null && data[OUTLOOK] !== undefined) {
             return { 'E-mail': data[OUTLOOK] };
           } 
-
           else {
             console.log('NO E-MAILS FOUND IN SPREADSHEET');
           }
-
         })
         .on("data", function(data){
           if(emails === '') emails = data['E-mail']; 
@@ -103,10 +103,11 @@ module.exports = app => {
         })
         .on("end", async function(){
           console.log("-----FILE Input-----");
+          
           const allRecipients = recipients + ', ' + emails;
           
           //Create new survey
-          const survey = createSurvey(title, subject, body, allRecipients, req);
+          const survey = createSurvey(fromEmail, title, subject, body, allRecipients, req);
 
           // Send e-mail after survey creation
           const mailer = new Mailer(survey, surveyTemplate(survey));
@@ -126,7 +127,7 @@ module.exports = app => {
       }
     } else {
       console.log("No files");
-      const survey = createSurvey(title, subject, body, recipients, req);
+      const survey = createSurvey(fromEmail, title, subject, body, recipients, req);
       
       // Send e-mail after survey creation
       const mailer = new Mailer(survey, surveyTemplate(survey));
@@ -149,7 +150,6 @@ module.exports = app => {
       await Survey.findOne({_id: survey_id }).remove().exec();
       const surveys = await Survey.find({ _user: req.user.id });
       res.send(surveys);
-   
     } catch (err) {
       res.status(500).send(err);
     }

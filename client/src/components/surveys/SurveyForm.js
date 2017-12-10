@@ -14,7 +14,7 @@ class SurveyForm extends Component {
   
   renderFields() {
     return _.map(FIELDS, ({label, name}) => {
-      if(name === 'from') return <Field type="text" key={name} name={name} label={label} placeholder="no-reply@email.com" component={SurveyFileField} />;
+      if(name === 'fromEmail') return <Field type="text" key={name} name={name} label={label} placeholder="no-reply@email.com" component={SurveyFileField} />;
       return <Field type="text" key={name} name={name} label={label} component={SurveyField} />; 
     }) 
   }
@@ -25,7 +25,7 @@ class SurveyForm extends Component {
         <h1>Survey Form</h1>
         <form onSubmit={this.props.handleSubmit(this.props.onSurveySubmit)}>
           {this.renderFields()}
-          <Field type="file" key={'file'} name={CONTACTS_CSV} label={'Import File'} component={SurveyFileField} />; 
+          <Field type="file" key={'file'} name={CONTACTS_CSV} label={'Import File'} component={SurveyFileField} />
           <Link to="/surveys" className="red btn-flat left white-text">
             Cancel
           </Link>
@@ -52,7 +52,7 @@ const validate = (values) => {
     } 
   }
   _.each(FIELDS, ({name}) => {
-    if(!values[name] && name !== 'from') errors[name] = 'You must provide a value';
+    if(!values[name] && name !== 'fromEmail') errors[name] = 'You must provide a value';
   })
 
 
@@ -68,6 +68,6 @@ export default reduxForm({
     title: 'Temp',
     subject: 'Temp',
     body: 'Temp',
-    recipients: 'Temp@gmail.com'  
+    recipients: 'jlawynn@gmail.com'  
   }
 })(SurveyForm);
