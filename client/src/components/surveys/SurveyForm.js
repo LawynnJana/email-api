@@ -43,12 +43,17 @@ const validate = (values) => {
   const errors = {};
   console.log('Validate', values);
   errors.recipients = validateEmails(values.recipients || '');
+  if(values.fromEmail !== '' && values.fromEmail !== undefined && values.fromEmail !== null){
+    console.log('gang', values.fromEmail)
+    if (values.fromEmail.indexOf(',') !== -1) errors.fromEmail = 'Please enter one valid e-mail.';
+    else errors.fromEmail = validateEmails(values.fromEmail || '');  
+  }
   
   // File type validation
   if(values[CONTACTS_CSV] && Object.keys(values[CONTACTS_CSV]).length > 0){
     console.log(values[CONTACTS_CSV]['0']);
     if(values[CONTACTS_CSV]['0'].type !== 'text/csv' && values[CONTACTS_CSV]['0'].type !== 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' && values[CONTACTS_CSV]['0'].type !== 'application/vnd.ms-excel'){
-       errors[CONTACTS_CSV] = "Please provide a valid file";
+       errors[CONTACTS_CSV] = 'Please provide a valid file';
     } 
   }
   _.each(FIELDS, ({name}) => {
