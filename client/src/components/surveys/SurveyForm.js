@@ -14,7 +14,7 @@ class SurveyForm extends Component {
   
   renderFields() {
     return _.map(FIELDS, ({label, name}) => {
-      //if(name === 'recipients') return <Field type="text" key={name} name={name} label={label} component={SurveyFileField} />;
+      if(name === 'from') return <Field type="text" key={name} name={name} label={label} placeholder="no-reply@email.com" component={SurveyFileField} />;
       return <Field type="text" key={name} name={name} label={label} component={SurveyField} />; 
     }) 
   }
@@ -52,7 +52,7 @@ const validate = (values) => {
     } 
   }
   _.each(FIELDS, ({name}) => {
-    if(!values[name]) errors[name] = 'You must provide a value';
+    if(!values[name] && name !== 'from') errors[name] = 'You must provide a value';
   })
 
 
