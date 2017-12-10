@@ -104,6 +104,7 @@ module.exports = app => {
         .on("end", async function(){
           console.log("-----FILE Input-----");
           const allRecipients = recipients + ', ' + emails;
+          
           //Create new survey
           const survey = createSurvey(title, subject, body, allRecipients, req);
 
@@ -126,6 +127,7 @@ module.exports = app => {
     } else {
       console.log("No files");
       const survey = createSurvey(title, subject, body, recipients, req);
+      
       // Send e-mail after survey creation
       const mailer = new Mailer(survey, surveyTemplate(survey));
       try {
@@ -138,6 +140,20 @@ module.exports = app => {
         res.status(422).send(err); // 422 => user sent wrong data
       }
     }
+  });
+
+  app.post('/api/surveys/delete', requireLogin, async (req, res) => {
+    console.log('Survey id', req.query);
+    const { survey_id } = req.query;
+    try {
+      await Survey.findOne({_id: survey_id }).remove().exec();
+      const surveys = await Survey.find({ _user: req.user.id });
+      res.send(surveys);
+   
+    } catch (err) {
+      res.status(500).send(err);
+    }
+    
   });
 
 };
