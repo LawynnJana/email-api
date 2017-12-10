@@ -12,6 +12,7 @@ import * as actions from '../../actions';
 const SurveyFormReview = ({ onCancel, formValues, submitSurvey, history }) => { 
 
   const reviewFields = _.map(FIELDS, ({ label, name }) => {
+    if(name === "fromEmail" && !formValues['fromEmail']) formValues['fromEmail'] = 'no-reply@email.com'
     return (
       <div key={name}>
         <label>{label}</label>
