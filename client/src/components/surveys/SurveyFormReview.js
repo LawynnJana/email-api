@@ -9,7 +9,7 @@ import * as actions from '../../actions';
 
 //const renderFormValues = ()
 
-const SurveyFormReview = ({ onCancel, formValues, submitSurvey, history }) => { 
+const SurveyFormReview = ({ onCancel, formValues, submitSurvey, history, auth }) => { 
 
   const reviewFields = _.map(FIELDS, ({ label, name }) => {
     if(name === "fromEmail" && !formValues['fromEmail']) formValues['fromEmail'] = 'no-reply@email.com'
@@ -22,12 +22,23 @@ const SurveyFormReview = ({ onCancel, formValues, submitSurvey, history }) => {
       </div>
     );
   });
+
+  const validateCredits = () => {
+    if(auth.credits < 1) {
+      alert("You do not have enough credits!");
+    } 
+    else {
+      submitSurvey(formValues, history, auth.credits);
+    }
+
+  }
+
   return (
     <div>
       <h5>Survey Review</h5>
       {reviewFields}
       <button onClick={onCancel} className="yellow darken-3 btn-flat white-text">Go Back</button>
-      <button onClick={() => submitSurvey(formValues, history)} className="green right btn-flat white-text">
+      <button onClick={() => validateCredits()} className="green right btn-flat white-text">
         Send Survey
         <i className="material-icons right">email</i>
       </button>
@@ -35,9 +46,10 @@ const SurveyFormReview = ({ onCancel, formValues, submitSurvey, history }) => {
   );
 };
 
-function mapStateToProps({ form }) {
+function mapStateToProps({ form, auth }) {
   return {
-    formValues: form.surveyForm.values
+    formValues: form.surveyForm.values,
+    auth: auth
   }
 }
 

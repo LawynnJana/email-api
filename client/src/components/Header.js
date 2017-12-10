@@ -29,7 +29,7 @@ class Header extends Component {
     return (
       <nav>
         <div className="nav-wrapper">
-          <Link to={auth ? `/surveys` : '/'} className="left brand-logo">Emaily</Link>
+          <Link to={auth ? `/surveys` : '/'} className="" style={{fontFamily:'Montserrat, Helvetica', fontSize: '40px'}}>Emplate</Link>
           <ul id="nav-mobile" className="right">       
             {this.renderContent()}
           </ul>

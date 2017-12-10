@@ -20,6 +20,7 @@ class SurveyList extends Component {
   }
 
   renderSurveys() {
+    console.log('Surveys exist');
     return this.props.surveys.reverse().map(survey => {
       return (
         <div className="card blue-grey" key={survey._id}>
@@ -36,17 +37,27 @@ class SurveyList extends Component {
             <a>Yes: {survey.yes} </a>
             <a>No: {survey.no} </a>
             <button onClick={() => this.handleDelete(survey._id)} className="btn-floating right btn-small waves-effect waves-light red"><i className="material-icons">delete</i></button>
-
           </div>
         </div>
       );
     })
   }
 
+  renderNoSurveys() {
+    console.log('No Surveys');
+    return (
+      <div className="card-panel grey lighten-5 center">
+        <p className="flow-text">You don't have any surveys!</p>
+      </div>
+    )
+  }
+
   render() {
+    const { surveys } = this.props;
+    console.log('contents', surveys.length);
     return (
       <div>
-        {this.renderSurveys()}
+        { (surveys.length !== 0) ? this.renderSurveys() : this.renderNoSurveys()}
       </div>
     );
   }
