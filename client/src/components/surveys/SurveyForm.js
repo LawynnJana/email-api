@@ -22,7 +22,7 @@ class SurveyForm extends Component {
   render() {
     return (
       <div>
-        <h1>Survey Form</h1>
+        <h2 style={{fontFamily: 'Montserrat, Helvetica'}}>Survey Form</h2>
         <form onSubmit={this.props.handleSubmit(this.props.onSurveySubmit)}>
           {this.renderFields()}
           <Field type="file" key={'file'} name={CONTACTS_CSV} label={'Import File'} component={SurveyFileField} />

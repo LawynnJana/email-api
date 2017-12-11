@@ -36,7 +36,7 @@ class SurveyList extends Component {
           <div className="card-action">
             <a>Yes: {survey.yes} </a>
             <a>No: {survey.no} </a>
-            <button onClick={() => this.handleDelete(survey._id)} className="btn-floating right btn-small waves-effect waves-light red"><i className="material-icons">delete</i></button>
+            <button onClick={() => this.handleDelete(survey._id)} style={{marginRight: '-35px', marginTop: '5px'}} className="btn-floating right btn-small waves-effect waves-light red"><i className="material-icons" style={{color:'#212121'}}>delete</i></button>
           </div>
         </div>
       );
