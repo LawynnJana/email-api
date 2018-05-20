@@ -1,4 +1,4 @@
-#### Emplate
+# Emplate
 ### Services
 Purchase credits via Stripe.
 Spend credits and use e-mailing templates to send e-mail surveys.
